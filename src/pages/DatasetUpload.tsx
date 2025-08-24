@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 import { Upload, FileText, BarChart3, Brain, Eye, Download, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { CrimeData } from '../types';
 import DatasetPreview from '../components/Dataset/DatasetPreview';
 import DatasetAnalysis from '../components/Dataset/DatasetAnalysis';
 import ModelTraining from '../components/Dataset/ModelTraining';
@@ -32,6 +35,8 @@ interface TrainingResults {
 }
 
 const DatasetUpload = () => {
+  const navigate = useNavigate();
+  const { uploadDataset, isLoading: contextLoading } = useData();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
@@ -40,6 +45,36 @@ const DatasetUpload = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Generate mock crime data from uploaded file
+  const generateCrimeDataFromFile = (file: File, rows: number): CrimeData[] => {
+    const crimeTypes = ['Theft', 'Burglary', 'Assault', 'Vandalism', 'Drug-related', 'Vehicle Crime', 'Robbery', 'Fraud'];
+    const districts = ['Downtown', 'North Side', 'East End', 'West Village', 'South Bay', 'Central Park', 'Harbor District'];
+    const severities: Array<'Low' | 'Medium' | 'High' | 'Critical'> = ['Low', 'Medium', 'High', 'Critical'];
+    const statuses: Array<'Open' | 'Under Investigation' | 'Closed' | 'Cold Case'> = ['Open', 'Under Investigation', 'Closed', 'Cold Case'];
+
+    return Array.from({ length: rows }, (_, i) => {
+      const type = crimeTypes[Math.floor(Math.random() * crimeTypes.length)];
+      const district = districts[Math.floor(Math.random() * districts.length)];
+      const lat = 40.7128 + (Math.random() - 0.5) * 0.1;
+      const lng = -74.0060 + (Math.random() - 0.5) * 0.1;
+      
+      return {
+        id: `crime-${file.name}-${i + 1}`,
+        type,
+        location: {
+          lat,
+          lng,
+          address: `${Math.floor(Math.random() * 9999)} ${district} Street`,
+          district
+        },
+        timestamp: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
+        severity: severities[Math.floor(Math.random() * severities.length)],
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        description: `${type} incident reported in ${district} area`
+      };
+    });
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -78,6 +113,14 @@ const DatasetUpload = () => {
       setUploadedFile(file);
       setDatasetInfo(info);
       setSuccess('Dataset uploaded successfully!');
+
+      // Generate crime data and upload to context
+      const crimeDataFromFile = generateCrimeDataFromFile(file, info.rows);
+      await uploadDataset(file, crimeDataFromFile);
+      
+      // Show success message with navigation option
+      setSuccess('Dataset uploaded and dashboard updated successfully!');
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
@@ -177,6 +220,10 @@ const DatasetUpload = () => {
     setCurrentStep('insights');
   };
 
+  const handleViewDashboard = () => {
+    navigate('/dashboard');
+  };
+
   const downloadSampleDataset = () => {
     const sampleData = `date,time,location,latitude,longitude,crime_type,severity,district
 2024-01-15,14:30,123 Main St,40.7128,-74.0060,Theft,Medium,Downtown
@@ -218,7 +265,17 @@ const DatasetUpload = () => {
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
             <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-            <span className="text-green-700">{success}</span>
+            <div className="flex-1">
+              <span className="text-green-700">{success}</span>
+            </div>
+            {success.includes('dashboard updated') && (
+              <button
+                onClick={handleViewDashboard}
+                className="ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                View Dashboard
+              </button>
+            )}
           </div>
         )}
 
@@ -253,9 +310,9 @@ const DatasetUpload = () => {
             />
             <label
               htmlFor="file-upload"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors inline-flex items-center"
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors inline-flex items-center"
             >
-              {loading ? (
+              {loading || contextLoading ? (
                 <>
                   <Loader className="h-4 w-4 mr-2 animate-spin" />
                   Processing...
@@ -282,10 +339,10 @@ const DatasetUpload = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={handleAnalyzeDataset}
-                disabled={loading || currentStep === 'analyze'}
+                disabled={loading || contextLoading || currentStep === 'analyze'}
                 className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
               >
-                {loading && currentStep === 'analyze' ? (
+                {(loading || contextLoading) && currentStep === 'analyze' ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <BarChart3 className="h-5 w-5" />
@@ -295,10 +352,10 @@ const DatasetUpload = () => {
 
               <button
                 onClick={handleTrainModel}
-                disabled={loading || !analysisResults || currentStep === 'train'}
+                disabled={loading || contextLoading || !analysisResults || currentStep === 'train'}
                 className="flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
               >
-                {loading && currentStep === 'train' ? (
+                {(loading || contextLoading) && currentStep === 'train' ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <Brain className="h-5 w-5" />
@@ -308,7 +365,7 @@ const DatasetUpload = () => {
 
               <button
                 onClick={handleShowInsights}
-                disabled={!trainingResults}
+                disabled={loading || contextLoading || !trainingResults}
                 className="flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
               >
                 <Eye className="h-5 w-5" />

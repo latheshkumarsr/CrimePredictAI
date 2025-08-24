@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
+import { MapPin } from 'lucide-react';
 import { CrimeData } from '../../types';
 import 'leaflet/dist/leaflet.css';
 

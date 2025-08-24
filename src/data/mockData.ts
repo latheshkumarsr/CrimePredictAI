@@ -1,6 +1,6 @@
 import { CrimeData, ModelMetrics, CrimeTrend, LocationHotspot } from '../types';
 
-// Generate realistic crime data
+// Generate realistic crime data (fallback for when no dataset is uploaded)
 export const generateCrimeData = (): CrimeData[] => {
   const crimeTypes = ['Theft', 'Burglary', 'Assault', 'Vandalism', 'Drug-related', 'Vehicle Crime', 'Robbery', 'Fraud'];
   const districts = ['Downtown', 'North Side', 'East End', 'West Village', 'South Bay', 'Central Park', 'Harbor District'];
@@ -103,4 +103,8 @@ export const locationHotspots: LocationHotspot[] = [
   { location: 'Central Park', count: 21, riskLevel: 'Low' },
 ];
 
-export const crimeData = generateCrimeData();
+// Default fallback data
+export const defaultCrimeData = generateCrimeData();
+
+// For backward compatibility
+export const crimeData = defaultCrimeData;
