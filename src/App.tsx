@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Prediction from './pages/Prediction';
 import Models from './pages/Models';
+import DatasetUpload from './pages/DatasetUpload';
 import About from './pages/About';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="prediction" element={<Prediction />} />
+          <Route path="dataset-upload" element={<DatasetUpload />} />
           <Route path="models" element={<Models />} />
           <Route path="about" element={<About />} />
         </Route>

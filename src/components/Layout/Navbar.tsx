@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, BarChart3, Target, Brain, BookOpen } from 'lucide-react';
+import { Shield, BarChart3, Target, Brain, BookOpen, Upload } from 'lucide-react';
 
 const Navbar = () => {
   const location = useLocation();
@@ -9,6 +9,7 @@ const Navbar = () => {
     { path: '/', label: 'Home', icon: Shield },
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/prediction', label: 'Live Demo', icon: Target },
+    { path: '/dataset-upload', label: 'Upload Dataset', icon: Upload },
     { path: '/models', label: 'Model Performance', icon: Brain },
     { path: '/about', label: 'About', icon: BookOpen },
   ];
