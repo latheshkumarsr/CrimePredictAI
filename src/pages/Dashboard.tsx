@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import AuthModal from '../components/Auth/AuthModal';
 import CustomBarChart from '../components/Charts/BarChart';
 import CustomLineChart from '../components/Charts/LineChart';
 import CustomPieChart from '../components/Charts/PieChart';
@@ -16,8 +17,37 @@ const Dashboard = () => {
     currentDataset, 
     isLoading, 
     error,
-    refreshDashboard 
+    refreshDashboard,
+    isAuthenticated
   } = useData();
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
+
+  // Show auth modal if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+            <Shield className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-blue-800 mb-4">Authentication Required</h2>
+            <p className="text-blue-600 mb-6">
+              Please sign in to access your crime analytics dashboard and upload datasets.
+            </p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Sign In to Continue
+            </button>
+          </div>
+        </div>
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      </div>
+    );
+  }
 
   // Process data for charts
   const crimeTypeData = crimeData.reduce((acc, crime) => {
@@ -81,6 +111,30 @@ const Dashboard = () => {
     );
   }
 
+  // Show empty state if no data
+  if (crimeData.length === 0 && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">No Data Available</h2>
+            <p className="text-gray-600 mb-6">
+              Upload your first crime dataset to start analyzing patterns and generating insights.
+            </p>
+            <Link
+              to="/dataset-upload"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
+            >
+              <Upload className="h-5 w-5 mr-2" />
+              Upload Dataset
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -91,7 +145,7 @@ const Dashboard = () => {
             <p className="text-gray-600">Comprehensive crime data analysis and visualization</p>
             {currentDataset && (
               <p className="text-sm text-blue-600 mt-1">
-                Current Dataset: {currentDataset.name} ({currentDataset.rows.toLocaleString()} records)
+                Current Dataset: {currentDataset.name} ({currentDataset.row_count.toLocaleString()} records)
               </p>
             )}
           </div>
@@ -189,7 +243,7 @@ const Dashboard = () => {
 
         {/* Crime Map */}
         <div className="mb-8">
-          <CrimeMap crimeData={crimeData.length > 0 ? crimeData : []} height={500} />
+          <CrimeMap crimeData={crimeData} height={500} />
         </div>
       </div>
     </div>

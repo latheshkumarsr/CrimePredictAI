@@ -1,26 +1,22 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { CrimeData, CrimeTrend, LocationHotspot } from '../types';
-
-interface DatasetInfo {
-  id: string;
-  name: string;
-  uploadDate: Date;
-  size: number;
-  rows: number;
-  columns: string[];
-}
+import { supabase, datasetService, Dataset, CrimeRecord } from '../lib/supabase';
 
 interface DataContextType {
-  currentDataset: DatasetInfo | null;
-  availableDatasets: DatasetInfo[];
+  currentDataset: Dataset | null;
+  availableDatasets: Dataset[];
   crimeData: CrimeData[];
   crimeTrends: CrimeTrend[];
   locationHotspots: LocationHotspot[];
   isLoading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
   uploadDataset: (file: File, data: CrimeData[]) => Promise<void>;
   selectDataset: (datasetId: string) => Promise<void>;
   refreshDashboard: () => void;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -38,21 +34,46 @@ interface DataProviderProps {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [currentDataset, setCurrentDataset] = useState<DatasetInfo | null>(null);
-  const [availableDatasets, setAvailableDatasets] = useState<DatasetInfo[]>([]);
+  const [currentDataset, setCurrentDataset] = useState<Dataset | null>(null);
+  const [availableDatasets, setAvailableDatasets] = useState<Dataset[]>([]);
   const [crimeData, setCrimeData] = useState<CrimeData[]>([]);
   const [crimeTrends, setCrimeTrends] = useState<CrimeTrend[]>([]);
   const [locationHotspots, setLocationHotspots] = useState<LocationHotspot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Convert Supabase records to app format
+  const convertCrimeRecords = useCallback((records: CrimeRecord[]): CrimeData[] => {
+    return records.map(record => ({
+      id: record.id,
+      type: record.crime_type,
+      location: {
+        lat: record.latitude || 40.7128,
+        lng: record.longitude || -74.0060,
+        address: record.location_name || 'Unknown Location',
+        district: record.district || 'Unknown District'
+      },
+      timestamp: new Date(record.incident_date || record.created_at),
+      severity: record.severity || 'Medium',
+      status: record.status || 'Open',
+      description: record.description || `${record.crime_type} incident`
+    }));
+  }, []);
 
   // Generate analytics from crime data
   const generateAnalytics = useCallback((data: CrimeData[]) => {
+    if (data.length === 0) {
+      setCrimeTrends([]);
+      setLocationHotspots([]);
+      return;
+    }
+
     // Generate crime trends
     const trends: CrimeTrend[] = [];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
-    const crimeTypes = ['Theft', 'Burglary', 'Assault', 'Vandalism', 'Drug-related'];
+    const crimeTypes = [...new Set(data.map(crime => crime.type))].slice(0, 5);
     
     crimeTypes.forEach(type => {
       months.forEach(month => {
@@ -61,7 +82,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           return crime.type === type && crimeMonth === month;
         }).length;
         
-        trends.push({ month, count: count + Math.floor(Math.random() * 20), type });
+        trends.push({ month, count, type });
       });
     });
 
@@ -79,96 +100,170 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }))
       .sort((a, b) => b.count - a.count);
 
-    return { trends, hotspots };
+    setCrimeTrends(trends);
+    setLocationHotspots(hotspots);
   }, []);
 
+  // Load datasets and data
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsAuthenticated(true);
+
+      // Load available datasets
+      const datasets = await datasetService.getDatasets();
+      setAvailableDatasets(datasets);
+
+      // Load active dataset
+      const activeDataset = await datasetService.getActiveDataset();
+      setCurrentDataset(activeDataset);
+
+      if (activeDataset) {
+        // Load crime records for active dataset
+        const records = await datasetService.getCrimeRecords(activeDataset.id);
+        const crimeData = convertCrimeRecords(records);
+        setCrimeData(crimeData);
+        generateAnalytics(crimeData);
+      } else {
+        setCrimeData([]);
+        generateAnalytics([]);
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [convertCrimeRecords, generateAnalytics]);
+
+  // Upload dataset
   const uploadDataset = useCallback(async (file: File, data: CrimeData[]) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate upload processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const newDataset: DatasetInfo = {
-        id: `dataset-${Date.now()}`,
-        name: file.name,
-        uploadDate: new Date(),
-        size: file.size,
-        rows: data.length,
-        columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district']
-      };
-
-      // Generate analytics from the new data
-      const { trends, hotspots } = generateAnalytics(data);
-
-      // Update state
-      setAvailableDatasets(prev => [newDataset, ...prev]);
-      setCurrentDataset(newDataset);
-      setCrimeData(data);
-      setCrimeTrends(trends);
-      setLocationHotspots(hotspots);
-
-      // Store in localStorage for persistence
-      const storedDatasets = JSON.parse(localStorage.getItem('crimeDatasets') || '[]');
-      const updatedDatasets = [newDataset, ...storedDatasets];
-      localStorage.setItem('crimeDatasets', JSON.stringify(updatedDatasets));
-      localStorage.setItem(`crimeData-${newDataset.id}`, JSON.stringify(data));
-
+      const dataset = await datasetService.uploadDataset(file, data);
+      
+      // Reload data to reflect changes
+      await loadData();
+      
     } catch (err) {
+      console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Upload failed');
+      throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [generateAnalytics]);
+  }, [loadData]);
 
+  // Select dataset
   const selectDataset = useCallback(async (datasetId: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Find dataset
-      const dataset = availableDatasets.find(d => d.id === datasetId);
-      if (!dataset) {
-        throw new Error('Dataset not found');
-      }
-
-      // Load data from localStorage
-      const storedData = localStorage.getItem(`crimeData-${datasetId}`);
-      if (!storedData) {
-        throw new Error('Dataset data not found');
-      }
-
-      const data: CrimeData[] = JSON.parse(storedData);
-      const { trends, hotspots } = generateAnalytics(data);
-
-      setCurrentDataset(dataset);
-      setCrimeData(data);
-      setCrimeTrends(trends);
-      setLocationHotspots(hotspots);
-
+      await datasetService.setActiveDataset(datasetId);
+      await loadData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dataset');
+      console.error('Error selecting dataset:', err);
+      setError(err instanceof Error ? err.message : 'Failed to select dataset');
     } finally {
       setIsLoading(false);
     }
-  }, [availableDatasets, generateAnalytics]);
+  }, [loadData]);
 
+  // Refresh dashboard
   const refreshDashboard = useCallback(() => {
-    if (currentDataset) {
-      selectDataset(currentDataset.id);
-    }
-  }, [currentDataset, selectDataset]);
+    loadData();
+  }, [loadData]);
 
-  // Load datasets from localStorage on mount
-  React.useEffect(() => {
-    const storedDatasets = JSON.parse(localStorage.getItem('crimeDatasets') || '[]');
-    setAvailableDatasets(storedDatasets);
-    
-    if (storedDatasets.length > 0) {
-      selectDataset(storedDatasets[0].id);
+  // Authentication functions
+  const signIn = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadData]);
+
+  const signUp = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign up failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
+
+  const signOut = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setIsAuthenticated(false);
+      setCurrentDataset(null);
+      setAvailableDatasets([]);
+      setCrimeData([]);
+      setCrimeTrends([]);
+      setLocationHotspots([]);
+    } catch (err) {
+      console.error('Sign out error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Initialize auth state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setIsAuthenticated(true);
+          await loadData();
+        } else {
+          setIsAuthenticated(false);
+          setCurrentDataset(null);
+          setAvailableDatasets([]);
+          setCrimeData([]);
+          setCrimeTrends([]);
+          setLocationHotspots([]);
+        }
+      }
+    );
+
+    // Initial load
+    loadData();
+
+    return () => subscription.unsubscribe();
+  }, [loadData]);
 
   const value: DataContextType = {
     currentDataset,
@@ -178,9 +273,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     locationHotspots,
     isLoading,
     error,
+    isAuthenticated,
     uploadDataset,
     selectDataset,
-    refreshDashboard
+    refreshDashboard,
+    signIn,
+    signUp,
+    signOut
   };
 
   return (

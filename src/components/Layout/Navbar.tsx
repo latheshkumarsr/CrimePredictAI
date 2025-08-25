@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, BarChart3, Target, Brain, BookOpen, Upload } from 'lucide-react';
+import { Shield, BarChart3, Target, Brain, BookOpen, Upload, LogOut, User } from 'lucide-react';
+import { useData } from '../../context/DataContext';
+import AuthModal from '../Auth/AuthModal';
 
 const Navbar = () => {
   const location = useLocation();
+  const { isAuthenticated, signOut } = useData();
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
 
   const navItems = [
     { path: '/', label: 'Home', icon: Shield },
@@ -14,8 +18,17 @@ const Navbar = () => {
     { path: '/about', label: 'About', icon: BookOpen },
   ];
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
   return (
-    <nav className="bg-blue-900 shadow-lg">
+    <>
+      <nav className="bg-blue-900 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-3">
@@ -40,10 +53,36 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
+            
+            <div className="flex items-center space-x-4">
+              {isAuthenticated ? (
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-1 text-blue-200 hover:bg-blue-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Sign In</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </nav>
+      </nav>
+      
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
+    </>
   );
 };
 

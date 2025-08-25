@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import AuthModal from '../components/Auth/AuthModal';
 import { Upload, FileText, BarChart3, Brain, Eye, Download, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { CrimeData } from '../types';
 import DatasetPreview from '../components/Dataset/DatasetPreview';
@@ -36,7 +37,8 @@ interface TrainingResults {
 
 const DatasetUpload = () => {
   const navigate = useNavigate();
-  const { uploadDataset, isLoading: contextLoading } = useData();
+  const { uploadDataset, isLoading: contextLoading, isAuthenticated } = useData();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
@@ -242,6 +244,33 @@ const DatasetUpload = () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
+
+  // Show auth modal if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+            <Upload className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-blue-800 mb-4">Authentication Required</h2>
+            <p className="text-blue-600 mb-6">
+              Please sign in to upload and analyze your crime datasets.
+            </p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Sign In to Upload
+            </button>
+          </div>
+        </div>
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
