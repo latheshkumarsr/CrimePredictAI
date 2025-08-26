@@ -46,6 +46,9 @@ export const datasetService = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Process in smaller batches for better performance
+      const batchSize = 500;
+      
       // Upload file to storage
       const filePath = `${user.id}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
@@ -77,25 +80,28 @@ export const datasetService = {
 
       if (datasetError) throw datasetError;
 
-      // Insert crime records
-      const crimeRecords = crimeData.map(record => ({
-        dataset_id: dataset.id,
-        crime_type: record.type || record.crime_type || 'Unknown',
-        location_name: record.location?.address || record.address || record.location_name,
-        latitude: record.location?.lat || record.latitude,
-        longitude: record.location?.lng || record.longitude,
-        district: record.location?.district || record.district,
-        severity: record.severity || 'Medium',
-        status: record.status || 'Open',
-        incident_date: record.timestamp || record.date || record.incident_date,
-        description: record.description || `${record.type || record.crime_type} incident`
-      }));
+      // Insert crime records in batches for better performance
+      for (let i = 0; i < crimeData.length; i += batchSize) {
+        const batch = crimeData.slice(i, i + batchSize);
+        const crimeRecords = batch.map(record => ({
+          dataset_id: dataset.id,
+          crime_type: record.type || record.crime_type || 'Unknown',
+          location_name: record.location?.address || record.address || record.location_name,
+          latitude: record.location?.lat || record.latitude,
+          longitude: record.location?.lng || record.longitude,
+          district: record.location?.district || record.district,
+          severity: record.severity || 'Medium',
+          status: record.status || 'Open',
+          incident_date: record.timestamp || record.date || record.incident_date,
+          description: record.description || `${record.type || record.crime_type} incident`
+        }));
 
-      const { error: recordsError } = await supabase
-        .from('crime_records')
-        .insert(crimeRecords);
+        const { error: recordsError } = await supabase
+          .from('crime_records')
+          .insert(crimeRecords);
 
-      if (recordsError) throw recordsError;
+        if (recordsError) throw recordsError;
+      }
 
       return dataset;
     } catch (error) {

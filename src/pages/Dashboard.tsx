@@ -164,10 +164,13 @@ const Dashboard = () => {
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 flex items-center space-x-4">
               <RefreshCw className="h-6 w-6 text-blue-600 animate-spin" />
-              <span className="text-gray-800">Updating dashboard...</span>
+              <div>
+                <span className="text-gray-800 font-medium">Processing data...</span>
+                <p className="text-sm text-gray-600">This may take a moment for large datasets</p>
+              </div>
             </div>
           </div>
         )}

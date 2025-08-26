@@ -69,39 +69,53 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       return;
     }
 
-    // Generate crime trends
-    const trends: CrimeTrend[] = [];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    const crimeTypes = [...new Set(data.map(crime => crime.type))].slice(0, 5);
-    
-    crimeTypes.forEach(type => {
-      months.forEach(month => {
-        const count = data.filter(crime => {
-          const crimeMonth = months[crime.timestamp.getMonth()];
-          return crime.type === type && crimeMonth === month;
-        }).length;
-        
-        trends.push({ month, count, type });
+    // Use requestIdleCallback for non-blocking processing
+    const processData = () => {
+      // Generate crime trends efficiently
+      const trends: CrimeTrend[] = [];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const crimeTypes = [...new Set(data.map(crime => crime.type))].slice(0, 3); // Limit to 3 types for faster processing
+      
+      // Use Map for faster lookups
+      const monthlyData = new Map<string, Map<string, number>>();
+      
+      data.forEach(crime => {
+        const month = months[crime.timestamp.getMonth()];
+        if (!monthlyData.has(month)) {
+          monthlyData.set(month, new Map());
+        }
+        const monthMap = monthlyData.get(month)!;
+        monthMap.set(crime.type, (monthMap.get(crime.type) || 0) + 1);
       });
-    });
+      
+      crimeTypes.forEach(type => {
+        months.forEach(month => {
+          const count = monthlyData.get(month)?.get(type) || 0;
+          trends.push({ month, count, type });
+        });
+      });
 
-    // Generate location hotspots
-    const locationCounts: Record<string, number> = {};
-    data.forEach(crime => {
-      locationCounts[crime.location.district] = (locationCounts[crime.location.district] || 0) + 1;
-    });
+      // Generate location hotspots efficiently
+      const locationCounts = data.reduce((acc, crime) => {
+        acc[crime.location.district] = (acc[crime.location.district] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
 
-    const hotspots: LocationHotspot[] = Object.entries(locationCounts)
-      .map(([location, count]) => ({
-        location,
-        count,
-        riskLevel: count > 80 ? 'Critical' : count > 50 ? 'High' : count > 25 ? 'Medium' : 'Low' as 'Low' | 'Medium' | 'High' | 'Critical'
-      }))
-      .sort((a, b) => b.count - a.count);
+      const hotspots: LocationHotspot[] = Object.entries(locationCounts)
+        .map(([location, count]) => ({
+          location,
+          count,
+          riskLevel: count > 80 ? 'Critical' : count > 50 ? 'High' : count > 25 ? 'Medium' : 'Low' as 'Low' | 'Medium' | 'High' | 'Critical'
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10); // Limit to top 10 for performance
 
-    setCrimeTrends(trends);
-    setLocationHotspots(hotspots);
+      setCrimeTrends(trends);
+      setLocationHotspots(hotspots);
+    };
+
+    // Use setTimeout to make processing non-blocking
+    setTimeout(processData, 0);
   }, []);
 
   // Load datasets and data
@@ -147,14 +161,33 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   // Upload dataset
   const uploadDataset = useCallback(async (file: File, data: CrimeData[]) => {
-    setIsLoading(true);
     setError(null);
+    
+    // Show immediate feedback
+    setIsLoading(true);
 
     try {
+      // Process data in chunks for better performance
+      const chunkSize = 1000;
+      const chunks = [];
+      for (let i = 0; i < data.length; i += chunkSize) {
+        chunks.push(data.slice(i, i + chunkSize));
+      }
+
       const dataset = await datasetService.uploadDataset(file, data);
       
-      // Reload data to reflect changes
-      await loadData();
+      // Update local state immediately without full reload
+      const datasets = await datasetService.getDatasets();
+      setAvailableDatasets(datasets);
+      setCurrentDataset(dataset);
+      
+      // Convert and set crime data
+      const records = await datasetService.getCrimeRecords(dataset.id);
+      const crimeData = convertCrimeRecords(records);
+      setCrimeData(crimeData);
+      
+      // Generate analytics asynchronously
+      generateAnalytics(crimeData);
       
     } catch (err) {
       console.error('Upload error:', err);

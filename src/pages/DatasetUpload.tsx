@@ -82,9 +82,9 @@ const DatasetUpload = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
     setError(null);
     setSuccess(null);
+    setLoading(true);
 
     try {
       // Validate file type
@@ -93,8 +93,8 @@ const DatasetUpload = () => {
         throw new Error('Please upload a CSV or Excel file');
       }
 
-      // Simulate file processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Show immediate feedback
+      setSuccess('Processing file...');
 
       // Mock dataset info
       const mockColumns = ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district'];
@@ -104,17 +104,18 @@ const DatasetUpload = () => {
         { date: '2024-01-17', time: '09:45', location: '789 Pine St', latitude: 40.6892, longitude: -74.0445, crime_type: 'Vandalism', severity: 'Low', district: 'West Village' }
       ];
 
+      const rowCount = Math.min(Math.floor(Math.random() * 2000) + 500, 1500); // Limit for performance
       const info: DatasetInfo = {
         name: file.name,
         size: file.size,
-        rows: Math.floor(Math.random() * 5000) + 1000,
+        rows: rowCount,
         columns: mockColumns,
         preview: mockPreview
       };
 
       setUploadedFile(file);
       setDatasetInfo(info);
-      setSuccess('Dataset uploaded successfully!');
+      setSuccess('File processed, uploading to database...');
 
       // Generate crime data and upload to context
       const crimeDataFromFile = generateCrimeDataFromFile(file, info.rows);

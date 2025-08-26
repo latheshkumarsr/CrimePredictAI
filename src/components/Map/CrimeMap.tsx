@@ -21,6 +21,9 @@ interface CrimeMapProps {
 const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
   const center: [number, number] = [40.7128, -74.0060]; // NYC coordinates
 
+  // Limit data for better map performance
+  const limitedData = crimeData.slice(0, 200);
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'Critical': return '#dc2626';
@@ -34,12 +37,17 @@ const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Crime Hotspot Map</h3>
+      {limitedData.length > 0 && (
+        <p className="text-sm text-gray-600 mb-2">
+          Showing {limitedData.length} of {crimeData.length} incidents for optimal performance
+        </p>
+      )}
       <MapContainer center={center} zoom={12} style={{ height: `${height}px`, width: '100%' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {crimeData.slice(0, 100).map((crime) => (
+        {limitedData.map((crime) => (
           <CircleMarker
             key={crime.id}
             center={[crime.location.lat, crime.location.lng]}
@@ -64,6 +72,7 @@ const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
           </CircleMarker>
         ))}
       </MapContainer>
+      )}
     </div>
   );
 };
