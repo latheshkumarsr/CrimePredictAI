@@ -74,7 +74,6 @@ const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
       </MapContainer>
     </div>
   );
-  );
 };
 
 export default CrimeMap;
