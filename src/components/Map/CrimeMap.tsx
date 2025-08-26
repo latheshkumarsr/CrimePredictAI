@@ -72,8 +72,8 @@ const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
           </CircleMarker>
         ))}
       </MapContainer>
-      )}
     </div>
+  );
   );
 };
 
