@@ -1,6 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
-import { MapPin } from 'lucide-react';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import { CrimeData } from '../../types';
 import 'leaflet/dist/leaflet.css';
 
@@ -33,6 +32,17 @@ const CrimeMap: React.FC<CrimeMapProps> = ({ crimeData, height = 400 }) => {
       default: return '#6b7280';
     }
   };
+
+  if (crimeData.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Crime Hotspot Map</h3>
+        <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+          <p className="text-gray-500">No crime data available to display on map</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">

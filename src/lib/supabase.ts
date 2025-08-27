@@ -46,9 +46,6 @@ export const datasetService = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Process in smaller batches for better performance
-      const batchSize = 500;
-      
       // Upload file to storage
       const filePath = `${user.id}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
@@ -81,6 +78,7 @@ export const datasetService = {
       if (datasetError) throw datasetError;
 
       // Insert crime records in batches for better performance
+      const batchSize = 500;
       for (let i = 0; i < crimeData.length; i += batchSize) {
         const batch = crimeData.slice(i, i + batchSize);
         const crimeRecords = batch.map(record => ({

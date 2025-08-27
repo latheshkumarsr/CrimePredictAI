@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import AuthModal from '../components/Auth/AuthModal';
 import CustomBarChart from '../components/Charts/BarChart';
@@ -7,7 +8,7 @@ import CustomPieChart from '../components/Charts/PieChart';
 import CrimeMap from '../components/Map/CrimeMap';
 import StatCard from '../components/Stats/StatCard';
 import DatasetSelector from '../components/Dashboard/DatasetSelector';
-import { TrendingUp, MapPin, AlertTriangle, Shield, RefreshCw } from 'lucide-react';
+import { TrendingUp, MapPin, AlertTriangle, Shield, RefreshCw, Upload, BarChart3 } from 'lucide-react';
 
 const Dashboard = () => {
   const { 

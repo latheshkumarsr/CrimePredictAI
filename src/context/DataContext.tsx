@@ -167,13 +167,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setIsLoading(true);
 
     try {
-      // Process data in chunks for better performance
-      const chunkSize = 1000;
-      const chunks = [];
-      for (let i = 0; i < data.length; i += chunkSize) {
-        chunks.push(data.slice(i, i + chunkSize));
-      }
-
       const dataset = await datasetService.uploadDataset(file, data);
       
       // Update local state immediately without full reload
@@ -196,7 +189,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [loadData]);
+  }, [convertCrimeRecords, generateAnalytics]);
 
   // Select dataset
   const selectDataset = useCallback(async (datasetId: string) => {

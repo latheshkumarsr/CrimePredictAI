@@ -122,7 +122,7 @@ const DatasetUpload = () => {
       await uploadDataset(file, crimeDataFromFile);
       
       // Show success message with navigation option
-      setSuccess('Dataset uploaded and dashboard updated successfully!');
+      setSuccess(`Dataset uploaded successfully! ${info.rows.toLocaleString()} records processed and dashboard updated.`);
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');

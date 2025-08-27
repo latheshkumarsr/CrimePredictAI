@@ -35,7 +35,9 @@ const Navbar = () => {
             <Shield className="h-8 w-8 text-blue-400" />
             <span className="text-xl font-bold text-white">CrimePredictAI</span>
           </Link>
-          
+        </div>
+        
+        <div className="ml-auto">
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navItems.map(({ path, label, icon: Icon }) => (
