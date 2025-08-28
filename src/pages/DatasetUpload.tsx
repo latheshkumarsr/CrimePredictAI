@@ -8,6 +8,8 @@ import DatasetPreview from '../components/Dataset/DatasetPreview';
 import DatasetAnalysis from '../components/Dataset/DatasetAnalysis';
 import ModelTraining from '../components/Dataset/ModelTraining';
 import DatasetInsights from '../components/Dataset/DatasetInsights';
+import ValidationPanel from '../components/DataValidation/ValidationPanel';
+import { ValidationResult } from '../utils/dataValidation';
 
 interface DatasetInfo {
   name: string;
@@ -43,10 +45,12 @@ const DatasetUpload = () => {
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
   const [trainingResults, setTrainingResults] = useState<TrainingResults | null>(null);
-  const [currentStep, setCurrentStep] = useState<'upload' | 'analyze' | 'train' | 'insights'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'validate' | 'analyze' | 'train' | 'insights'>('upload');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [cleanedData, setCleanedData] = useState<CrimeData[]>([]);
 
   // Generate mock crime data from uploaded file
   const generateCrimeDataFromFile = (file: File, rows: number): CrimeData[] => {
@@ -115,14 +119,12 @@ const DatasetUpload = () => {
 
       setUploadedFile(file);
       setDatasetInfo(info);
-      setSuccess('File processed, uploading to database...');
+      setSuccess('File processed successfully! Ready for validation and cleaning.');
+      setCurrentStep('validate');
 
-      // Generate crime data and upload to context
-      const crimeDataFromFile = generateCrimeDataFromFile(file, info.rows);
-      await uploadDataset(file, crimeDataFromFile);
-      
-      // Show success message with navigation option
-      setSuccess(`Dataset uploaded successfully! ${info.rows.toLocaleString()} records processed and dashboard updated.`);
+      // Generate initial crime data for validation
+      const initialCrimeData = generateCrimeDataFromFile(file, info.rows);
+      setCleanedData(initialCrimeData);
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
@@ -131,8 +133,27 @@ const DatasetUpload = () => {
     }
   };
 
+  const handleDataCleaned = async (cleanedCrimeData: CrimeData[], result: ValidationResult) => {
+    setCleanedData(cleanedCrimeData);
+    setValidationResult(result);
+    
+    if (result.isValid) {
+      setSuccess('Data validation and cleaning completed successfully!');
+      
+      // Upload cleaned data to database
+      try {
+        if (uploadedFile) {
+          await uploadDataset(uploadedFile, cleanedCrimeData);
+          setSuccess(`Dataset uploaded successfully! ${cleanedCrimeData.length.toLocaleString()} clean records processed and dashboard updated globally.`);
+        }
+      } catch (err) {
+        setError('Failed to upload cleaned data to database');
+      }
+    }
+  };
+
   const handleAnalyzeDataset = async () => {
-    if (!datasetInfo) return;
+    if (!datasetInfo || cleanedData.length === 0) return;
 
     setLoading(true);
     setError(null);
@@ -144,7 +165,7 @@ const DatasetUpload = () => {
 
       const mockAnalysis: AnalysisResults = {
         summary: {
-          totalRecords: datasetInfo.rows,
+          totalRecords: cleanedData.length,
           missingValues: {
             'date': 0,
             'time': 12,
@@ -180,7 +201,7 @@ const DatasetUpload = () => {
   };
 
   const handleTrainModel = async () => {
-    if (!datasetInfo) return;
+    if (!datasetInfo || cleanedData.length === 0) return;
 
     setLoading(true);
     setError(null);
@@ -365,58 +386,86 @@ const DatasetUpload = () => {
         {/* Action Buttons */}
         {datasetInfo && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">Analysis Pipeline</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">Data Processing Pipeline</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <button
+                onClick={() => setCurrentStep('validate')}
+                disabled={loading || contextLoading}
+                className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+                  currentStep === 'validate' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <FileText className="h-5 w-5" />
+                <span>1. Validate & Clean</span>
+              </button>
+
               <button
                 onClick={handleAnalyzeDataset}
-                disabled={loading || contextLoading || currentStep === 'analyze'}
-                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
+                disabled={loading || contextLoading || !validationResult || currentStep === 'analyze'}
+                className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+                  currentStep === 'analyze' ? 'bg-green-600 text-white' : 
+                  validationResult ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-gray-100 text-gray-400'
+                }`}
               >
                 {(loading || contextLoading) && currentStep === 'analyze' ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <BarChart3 className="h-5 w-5" />
                 )}
-                <span>Analyze Dataset</span>
+                <span>2. Analyze</span>
               </button>
 
               <button
                 onClick={handleTrainModel}
                 disabled={loading || contextLoading || !analysisResults || currentStep === 'train'}
-                className="flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
+                className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+                  currentStep === 'train' ? 'bg-purple-600 text-white' : 
+                  analysisResults ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-gray-100 text-gray-400'
+                }`}
               >
                 {(loading || contextLoading) && currentStep === 'train' ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <Brain className="h-5 w-5" />
                 )}
-                <span>Train Model</span>
+                <span>3. Train Model</span>
               </button>
 
               <button
                 onClick={handleShowInsights}
                 disabled={loading || contextLoading || !trainingResults}
-                className="flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg transition-colors"
+                className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+                  currentStep === 'insights' ? 'bg-orange-600 text-white' : 
+                  trainingResults ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-gray-100 text-gray-400'
+                }`}
               >
                 <Eye className="h-5 w-5" />
-                <span>Show Insights</span>
+                <span>4. Show Insights</span>
               </button>
             </div>
           </div>
         )}
 
+        {/* Validation Panel */}
+        {currentStep === 'validate' && datasetInfo && (
+          <ValidationPanel 
+            data={cleanedData} 
+            onDataCleaned={handleDataCleaned}
+          />
+        )}
+
         {/* Analysis Results */}
-        {analysisResults && (
+        {currentStep === 'analyze' && analysisResults && (
           <DatasetAnalysis analysisResults={analysisResults} />
         )}
 
         {/* Training Results */}
-        {trainingResults && (
+        {currentStep === 'train' && trainingResults && (
           <ModelTraining trainingResults={trainingResults} />
         )}
 
         {/* Insights */}
-        {currentStep === 'insights' && trainingResults && (
+        {currentStep === 'insights' && trainingResults && datasetInfo && (
           <DatasetInsights 
             trainingResults={trainingResults}
             datasetInfo={datasetInfo}

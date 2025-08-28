@@ -5,7 +5,7 @@ import AuthModal from '../components/Auth/AuthModal';
 import CustomBarChart from '../components/Charts/BarChart';
 import CustomLineChart from '../components/Charts/LineChart';
 import CustomPieChart from '../components/Charts/PieChart';
-import CrimeMap from '../components/Map/CrimeMap';
+import GlobalCrimeMap from '../components/Map/GlobalCrimeMap';
 import StatCard from '../components/Stats/StatCard';
 import DatasetSelector from '../components/Dashboard/DatasetSelector';
 import { TrendingUp, MapPin, AlertTriangle, Shield, RefreshCw, Upload, BarChart3 } from 'lucide-react';
@@ -247,7 +247,11 @@ const Dashboard = () => {
 
         {/* Crime Map */}
         <div className="mb-8">
-          <CrimeMap crimeData={crimeData} height={500} />
+          <GlobalCrimeMap 
+            crimeData={crimeData} 
+            height={500}
+            showHeatmap={true}
+          />
         </div>
       </div>
     </div>
