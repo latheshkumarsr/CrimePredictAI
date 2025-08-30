@@ -1,30 +1,30 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { DataProvider } from './context/DataContext';
+import { CSVDataProvider } from './context/CSVDataContext';
 import Layout from './components/Layout/Layout';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import Prediction from './pages/Prediction';
-import Models from './pages/Models';
-import DatasetUpload from './pages/DatasetUpload';
-import About from './pages/About';
+import DataUpload from './pages/DataUpload';
+import LiveDemo from './pages/LiveDemo';
+import ModelPerformance from './pages/ModelPerformance';
+import AboutAccuracy from './pages/AboutAccuracy';
+import ModelInterpretability from './pages/ModelInterpretability';
+import PatternMatching from './pages/PatternMatching';
 
 function App() {
   return (
-    <DataProvider>
+    <CSVDataProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="prediction" element={<Prediction />} />
-            <Route path="dataset-upload" element={<DatasetUpload />} />
-            <Route path="models" element={<Models />} />
-            <Route path="about" element={<About />} />
+            <Route index element={<DataUpload />} />
+            <Route path="live-demo" element={<LiveDemo />} />
+            <Route path="model-performance" element={<ModelPerformance />} />
+            <Route path="about-accuracy" element={<AboutAccuracy />} />
+            <Route path="interpretability" element={<ModelInterpretability />} />
+            <Route path="pattern-matching" element={<PatternMatching />} />
           </Route>
         </Routes>
       </Router>
-    </DataProvider>
+    </CSVDataProvider>
   );
 }
 
