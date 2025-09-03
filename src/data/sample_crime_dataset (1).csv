@@ -1,6 +1,0 @@
-date,time,location,latitude,longitude,crime_type,severity,district
-2024-01-15,14:30,123 Main St,40.7128,-74.0060,Theft,Medium,Downtown
-2024-01-16,22:15,456 Oak Ave,40.7589,-73.9851,Burglary,High,North Side
-2024-01-17,09:45,789 Pine St,40.6892,-74.0445,Vandalism,Low,West Village
-2024-01-18,18:20,321 Elm Dr,40.7505,-73.9934,Assault,High,East End
-2024-01-19,11:30,654 Maple Ln,40.7282,-74.0776,Drug-related,Medium,Harbor District

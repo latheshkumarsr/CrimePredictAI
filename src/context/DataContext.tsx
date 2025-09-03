@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { CrimeData, CrimeTrend, LocationHotspot } from '../types';
+import { defaultCrimeData, generateCrimeTrends, generateLocationHotspots } from '../data/mockData';
 
 interface DatasetInfo {
   id: string;
@@ -38,47 +39,28 @@ interface DataProviderProps {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [currentDataset, setCurrentDataset] = useState<DatasetInfo | null>(null);
-  const [availableDatasets, setAvailableDatasets] = useState<DatasetInfo[]>([]);
-  const [crimeData, setCrimeData] = useState<CrimeData[]>([]);
-  const [crimeTrends, setCrimeTrends] = useState<CrimeTrend[]>([]);
-  const [locationHotspots, setLocationHotspots] = useState<LocationHotspot[]>([]);
+  // Initialize with default dataset
+  const defaultDataset: DatasetInfo = {
+    id: 'default-dataset',
+    name: 'Default Crime Dataset (1000 records)',
+    uploadDate: new Date(),
+    size: 50000, // Approximate size
+    rows: 1000,
+    columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district']
+  };
+
+  const [currentDataset, setCurrentDataset] = useState<DatasetInfo>(defaultDataset);
+  const [availableDatasets, setAvailableDatasets] = useState<DatasetInfo[]>([defaultDataset]);
+  const [crimeData, setCrimeData] = useState<CrimeData[]>(defaultCrimeData);
+  const [crimeTrends, setCrimeTrends] = useState<CrimeTrend[]>(generateCrimeTrends(defaultCrimeData));
+  const [locationHotspots, setLocationHotspots] = useState<LocationHotspot[]>(generateLocationHotspots(defaultCrimeData));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Generate analytics from crime data
   const generateAnalytics = useCallback((data: CrimeData[]) => {
-    // Generate crime trends
-    const trends: CrimeTrend[] = [];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    const crimeTypes = ['Theft', 'Burglary', 'Assault', 'Vandalism', 'Drug-related'];
-    
-    crimeTypes.forEach(type => {
-      months.forEach(month => {
-        const count = data.filter(crime => {
-          const crimeMonth = months[crime.timestamp.getMonth()];
-          return crime.type === type && crimeMonth === month;
-        }).length;
-        
-        trends.push({ month, count: count + Math.floor(Math.random() * 20), type });
-      });
-    });
-
-    // Generate location hotspots
-    const locationCounts: Record<string, number> = {};
-    data.forEach(crime => {
-      locationCounts[crime.location.district] = (locationCounts[crime.location.district] || 0) + 1;
-    });
-
-    const hotspots: LocationHotspot[] = Object.entries(locationCounts)
-      .map(([location, count]) => ({
-        location,
-        count,
-        riskLevel: count > 80 ? 'Critical' : count > 50 ? 'High' : count > 25 ? 'Medium' : 'Low' as 'Low' | 'Medium' | 'High' | 'Critical'
-      }))
-      .sort((a, b) => b.count - a.count);
-
+    const trends = generateCrimeTrends(data);
+    const hotspots = generateLocationHotspots(data);
     return { trends, hotspots };
   }, []);
 
@@ -127,6 +109,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setError(null);
 
     try {
+      // Handle default dataset
+      if (datasetId === 'default-dataset') {
+        const { trends, hotspots } = generateAnalytics(defaultCrimeData);
+        setCurrentDataset(defaultDataset);
+        setCrimeData(defaultCrimeData);
+        setCrimeTrends(trends);
+        setLocationHotspots(hotspots);
+        return;
+      }
+
       // Find dataset
       const dataset = availableDatasets.find(d => d.id === datasetId);
       if (!dataset) {
@@ -149,6 +141,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dataset');
+      // Fallback to default dataset
+      const { trends, hotspots } = generateAnalytics(defaultCrimeData);
+      setCurrentDataset(defaultDataset);
+      setCrimeData(defaultCrimeData);
+      setCrimeTrends(trends);
+      setLocationHotspots(hotspots);
     } finally {
       setIsLoading(false);
     }
@@ -157,18 +155,25 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const refreshDashboard = useCallback(() => {
     if (currentDataset) {
       selectDataset(currentDataset.id);
+    } else {
+      // Fallback to default dataset
+      selectDataset('default-dataset');
     }
   }, [currentDataset, selectDataset]);
 
   // Load datasets from localStorage on mount
   React.useEffect(() => {
     const storedDatasets = JSON.parse(localStorage.getItem('crimeDatasets') || '[]');
-    setAvailableDatasets(storedDatasets);
+    const allDatasets = [defaultDataset, ...storedDatasets];
+    setAvailableDatasets(allDatasets);
     
-    if (storedDatasets.length > 0) {
-      selectDataset(storedDatasets[0].id);
-    }
-  }, []);
+    // Always start with default dataset
+    const { trends, hotspots } = generateAnalytics(defaultCrimeData);
+    setCurrentDataset(defaultDataset);
+    setCrimeData(defaultCrimeData);
+    setCrimeTrends(trends);
+    setLocationHotspots(hotspots);
+  }, [generateAnalytics]);
 
   const value: DataContextType = {
     currentDataset,
