@@ -7,9 +7,16 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white">
+      <div className="relative bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white overflow-hidden">
+        {/* Dynamic Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-blue-400 opacity-10 rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-48 h-48 bg-purple-400 opacity-10 rounded-full animate-bounce"></div>
+          <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-blue-300 opacity-5 rounded-full animate-ping"></div>
+        </div>
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
+          <div className="text-center relative z-10">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               CrimePredictAI
             </h1>
@@ -24,14 +31,14 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/prediction"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 inline-flex items-center"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 inline-flex items-center transform hover:scale-105 hover:shadow-xl"
               >
                 <Target className="h-5 w-5 mr-2" />
                 Try Live Demo
               </Link>
               <Link
                 to="/dashboard"
-                className="bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 inline-flex items-center"
+                className="bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 inline-flex items-center transform hover:scale-105 hover:shadow-xl"
               >
                 <BarChart3 className="h-5 w-5 mr-2" />
                 View Dashboard
@@ -100,12 +107,16 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow duration-200">
-                <feature.icon className="h-12 w-12 text-blue-600 mb-4" />
+              <div 
+                key={index} 
+                className="p-6 border border-gray-200 rounded-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:border-blue-300 group cursor-pointer"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <feature.icon className="h-12 w-12 text-blue-600 mb-4 group-hover:scale-110 group-hover:text-blue-700 transition-all duration-200" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 group-hover:text-gray-700 transition-colors">
                   {feature.description}
                 </p>
               </div>
@@ -125,7 +136,7 @@ const Home = () => {
           </p>
           <Link
             to="/prediction"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 inline-flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 inline-flex items-center transform hover:scale-105 hover:shadow-xl"
           >
             <Shield className="h-5 w-5 mr-2" />
             Start Predicting Now
