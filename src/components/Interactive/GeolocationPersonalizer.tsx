@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, TrendingUp, Shield, Clock, Thermometer, Users } from 'lucide-react';
+import { MapPin, TrendingUp, Shield, Clock, Thermometer, Users, Brain } from 'lucide-react';
 
 interface GeolocationPersonalizerProps {
   userLocation: { lat: number; lng: number } | null;
