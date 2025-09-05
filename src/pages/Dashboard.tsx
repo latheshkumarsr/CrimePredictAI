@@ -189,7 +189,11 @@ const Dashboard = () => {
 
         {/* Crime Map */}
         <div className="mb-8">
-          <CrimeMap crimeData={crimeData.length > 0 ? crimeData : []} height={500} />
+          <CrimeMap 
+            crimeData={crimeData.length > 0 ? crimeData : []} 
+            height={600} 
+            showAllPoints={true}
+          />
         </div>
       </div>
     </div>
