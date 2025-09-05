@@ -1,4 +1,5 @@
 import { CrimeData, ModelMetrics, CrimeTrend, LocationHotspot } from '../types';
+import { largeIndianCrimeData } from './indianCrimeData';
 
 // Generate realistic crime data with 1000 records
 export const generateCrimeData = (count: number = 1000): CrimeData[] => {
@@ -126,7 +127,7 @@ export const generateLocationHotspots = (crimeData: CrimeData[]): LocationHotspo
 };
 
 // Default dataset with 1000 records
-export const defaultCrimeData = generateCrimeData(1000);
+export const defaultCrimeData = [...generateCrimeData(1000), ...largeIndianCrimeData];
 export const defaultCrimeTrends = generateCrimeTrends(defaultCrimeData);
 export const defaultLocationHotspots = generateLocationHotspots(defaultCrimeData);
 

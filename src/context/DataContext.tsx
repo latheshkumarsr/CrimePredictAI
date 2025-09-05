@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { CrimeData, CrimeTrend, LocationHotspot } from '../types';
 import { defaultCrimeData, generateCrimeTrends, generateLocationHotspots } from '../data/mockData';
+import { generateIndianCrimeData } from '../data/indianCrimeData';
 
 interface DatasetInfo {
   id: string;
@@ -42,15 +43,25 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Initialize with default dataset
   const defaultDataset: DatasetInfo = {
     id: 'default-dataset',
-    name: 'Default Crime Dataset (1000 records)',
+    name: 'Global Crime Dataset (6000 records)',
     uploadDate: new Date(),
-    size: 50000, // Approximate size
-    rows: 1000,
+    size: 300000, // Approximate size
+    rows: 6000,
     columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district']
   };
 
+  // Indian dataset
+  const indianDataset: DatasetInfo = {
+    id: 'indian-dataset',
+    name: 'Indian Crime Dataset (5000 records)',
+    uploadDate: new Date(),
+    size: 250000,
+    rows: 5000,
+    columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district', 'city', 'state']
+  };
+
   const [currentDataset, setCurrentDataset] = useState<DatasetInfo>(defaultDataset);
-  const [availableDatasets, setAvailableDatasets] = useState<DatasetInfo[]>([defaultDataset]);
+  const [availableDatasets, setAvailableDatasets] = useState<DatasetInfo[]>([defaultDataset, indianDataset]);
   const [crimeData, setCrimeData] = useState<CrimeData[]>(defaultCrimeData);
   const [crimeTrends, setCrimeTrends] = useState<CrimeTrend[]>(generateCrimeTrends(defaultCrimeData));
   const [locationHotspots, setLocationHotspots] = useState<LocationHotspot[]>(generateLocationHotspots(defaultCrimeData));
@@ -114,6 +125,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const { trends, hotspots } = generateAnalytics(defaultCrimeData);
         setCurrentDataset(defaultDataset);
         setCrimeData(defaultCrimeData);
+        setCrimeTrends(trends);
+        setLocationHotspots(hotspots);
+        return;
+      }
+
+      // Handle Indian dataset
+      if (datasetId === 'indian-dataset') {
+        const indianData = generateIndianCrimeData(5000);
+        const { trends, hotspots } = generateAnalytics(indianData);
+        setCurrentDataset(indianDataset);
+        setCrimeData(indianData);
         setCrimeTrends(trends);
         setLocationHotspots(hotspots);
         return;
