@@ -53,10 +53,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // Indian dataset
   const indianDataset: DatasetInfo = {
     id: 'indian-dataset',
-    name: 'Indian Crime Dataset (5000 records)',
+    name: 'Enhanced Indian Crime Dataset (8000+ records)',
     uploadDate: new Date(),
-    size: 250000,
-    rows: 5000,
+    size: 400000,
+    rows: 8000,
     columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district', 'city', 'state']
   };
 

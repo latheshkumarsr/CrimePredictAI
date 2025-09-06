@@ -127,7 +127,7 @@ export const generateLocationHotspots = (crimeData: CrimeData[]): LocationHotspo
 };
 
 // Default dataset with 1000 records
-export const defaultCrimeData = [...generateCrimeData(1000), ...largeIndianCrimeData];
+export const defaultCrimeData = [...generateCrimeData(2000), ...largeIndianCrimeData];
 export const defaultCrimeTrends = generateCrimeTrends(defaultCrimeData);
 export const defaultLocationHotspots = generateLocationHotspots(defaultCrimeData);
 
