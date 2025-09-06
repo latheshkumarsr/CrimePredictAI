@@ -177,7 +177,15 @@ CrimePredictAI is a **landmark initiative** in applying **AI/ML to public safety
 
 ## 🔗 Quick Access
 
-Scan this QR code with your phone to visit **CrimePredictAI** instantly:
+Click here: [https://crimepredictai.netlify.app/](https://crimepredictai.netlify.app/)
 
-[![CrimePredictAI QR Code](./QR_Code.png)](https://crimepredictai.netlify.app/)
+ or Scan the QR code to visit the live CrimePredictAI site:
+
+<p align="center">
+  <a href="https://crimepredictai.netlify.app/">
+    <img src="QR_Code.png" alt="CrimePredictAI QR Code" width="499" />
+  </a>
+</p>
+
+
 
