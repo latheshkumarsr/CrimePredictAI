@@ -174,3 +174,10 @@ CrimePredictAI is a **landmark initiative** in applying **AI/ML to public safety
 ---
 
 🔒 *CrimePredictAI aims to redefine crime analysis through AI, making cities safer and smarter.* 🏙️🤖
+
+## 🔗 Quick Access
+
+Scan this QR code with your phone to visit **CrimePredictAI** instantly:
+
+[![CrimePredictAI QR Code](./QR-Code.jpg)](https://crimepredictai.netlify.app/)
+
