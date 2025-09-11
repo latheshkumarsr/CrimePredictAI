@@ -45,7 +45,7 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 
 ## 🤖 Machine Learning Implementation  
 
-### 📊 Algorithm Performance Analysis  
+### 📊 Algorithm Performance Analysis  ***based on last update(values may change depends on training)***
 - 🌳 **Random Forest (88.6% Accuracy - Excellent)**  
   - Precision: 87.2%  
   - Recall: 89.1%  
@@ -63,15 +63,15 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 
 ## 📈 Data Analytics Dashboard  
 
-### 📌 Key Performance Indicators  
-- 📂 Total Crimes Analyzed: **2,635 (12 months)**  
+### 📌 Key Performance Indicators  ***based on last update(values may change depends on training)***
+- 📂 Total Crimes Analyzed: **5000+ (12 months)**  
 - 🚨 High-Risk Cases: **1,505**  
 - 📑 Open Cases: **538**  
 - 🛰️ Area Risk Score: **57.1%**  
 - 🕵️ Crime Types Tracked: **18 categories**  
 - 📊 Dataset Size: **10,000+ records**  
 
-### 🔍 Crime Distribution  
+### 🔍 Crime Distribution  ***based on last update(values may change depends on training)***
 - 🛍️ Theft: **18%** (Most common)  
 - 🏠 Burglary: **16%**  
 - 👩‍👦 Domestic Violence: **8%**  
