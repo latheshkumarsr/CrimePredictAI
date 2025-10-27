@@ -1,7 +1,7 @@
-# 🚨 Crime Pattern Analysis and Prediction: Comprehensive Project Analysis Report  
+# 🚨 CrimePredictAI: Comprehensive Project Analysis Report  
 
 ## 📌 Executive Summary  
-Crime Pattern Analysis and Prediction represents a cutting-edge application of **machine learning** technology for crime prediction and analysis.  
+CrimePredictAI represents a cutting-edge application of **machine learning** technology for crime prediction and analysis.  
 ⚡ This web-based platform demonstrates exceptional technical sophistication, achieving **88.6% accuracy** in crime prediction using advanced **Random Forest algorithms**.  
 The project successfully integrates **real-time data analysis**, **interactive visualizations**, and **user-friendly interfaces** to create a comprehensive crime analytics solution.  
 
@@ -28,11 +28,6 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 - 🌀 **TypeScript** – Type-safe programming  
 - 🎨 **Tailwind CSS** – Responsive design utilities  
 
-### 📊 Database Integration  
-- 📋 **Google Sheets API** – Live database operations  
-- 🔄 **Real-time Sync** – Instant data updates  
-- 🔐 **Secure Authentication** – API key-based access  
-
 ### 📊 Visualization Components  
 - 📈 **Recharts** – Advanced charting  
 - 🗺️ **React-Leaflet** – Interactive maps  
@@ -43,42 +38,14 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 - 🔎 **Scikit-learn** – Model development  
 - 📑 **Pandas** – Data manipulation  
 
-### 🗄️ Database Operations  
-- 📝 **CRUD Operations** – Complete data management  
-- 📊 **Google Sheets** – Live spreadsheet database  
-- 🔄 **Real-time Updates** – Instant synchronization  
-- 📋 **Bulk Operations** – Efficient data handling  
-
 ### ☁️ Deployment Infrastructure  
 - 🌐 **Netlify** – Hosting & CI/CD pipelines  
-
----
-
-## 🗄️ Google Sheets Database Integration  
-
-### 📋 **Database Setup**  
-- **Live Google Sheet**: [Crime Database](https://docs.google.com/spreadsheets/d/1bYwyyGFR-Dkfo7yE8t0ftw_xXblJosKEP3ud3k0IPAc/edit?usp=sharing)  
-- **Real-time Operations**: All CRUD operations reflect instantly  
-- **API Integration**: Google Sheets API v4 with secure authentication  
-
-### 🔧 **CRUD Operations**  
-- ✅ **Create**: Add new crime records  
-- 📖 **Read**: Fetch all data with filtering  
-- ✏️ **Update**: Modify existing records  
-- 🗑️ **Delete**: Remove records safely  
-
-### 📊 **Features**  
-- **Type Safety**: Full TypeScript support  
-- **Error Handling**: Comprehensive error management  
-- **Bulk Operations**: Batch data processing  
-- **Real-time Sync**: Instant updates across all clients  
 
 ---
 
 ## 🤖 Machine Learning Implementation  
 
 ### 📊 Algorithm Performance Analysis  
-***based on last update(values may change depends on training)***
 - 🌳 **Random Forest (88.6% Accuracy - Excellent)**  
   - Precision: 87.2%  
   - Recall: 89.1%  
@@ -97,8 +64,7 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 ## 📈 Data Analytics Dashboard  
 
 ### 📌 Key Performance Indicators  
-***based on last update(values may change depends on training)***
-- 📂 Total Crimes Analyzed: **5000+ (12 months)**  
+- 📂 Total Crimes Analyzed: **2,635 (12 months)**  
 - 🚨 High-Risk Cases: **1,505**  
 - 📑 Open Cases: **538**  
 - 🛰️ Area Risk Score: **57.1%**  
@@ -106,7 +72,6 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 - 📊 Dataset Size: **10,000+ records**  
 
 ### 🔍 Crime Distribution  
-***based on last update(values may change depends on training)***
 - 🛍️ Theft: **18%** (Most common)  
 - 🏠 Burglary: **16%**  
 - 👩‍👦 Domestic Violence: **8%**  
@@ -156,7 +121,6 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 ---
 
 ## 🏅 Technical Achievements  
-***based on last update(values may change depends on training)***
 
 - 🎯 **Accuracy**: 88.6% (top tier)  
 - ⚡ **Real-time Processing**: Instant predictions  
@@ -166,7 +130,6 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 ---
 
 ## 📊 Comparative Analysis  
-***based on last update(values may change depends on training)***
 
 - 📚 **Academic Benchmark**: Industry avg. 75–85% vs ours **88.6%** 🌟  
 - 🏆 Performance: Top **10%** of global research standards  
@@ -195,7 +158,7 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 
 ## ✅ Conclusion  
 
-Crime Pattern Analysis and Prediction is a **landmark initiative** in applying **AI/ML to public safety**. It delivers:  
+CrimePredictAI is a **landmark initiative** in applying **AI/ML to public safety**. It delivers:  
 1. **🤖 Technical Excellence** – High-accuracy models  
 2. **🚨 Practical Utility** – Real-world police applications  
 3. **🎨 User-Centered Design** – Intuitive & interactive UI  
@@ -210,17 +173,17 @@ Crime Pattern Analysis and Prediction is a **landmark initiative** in applying *
 
 ---
 
-🔒 *Crime Pattern Analysis and Prediction aims to redefine crime analysis through AI, making cities safer and smarter.* 🏙️🤖
+🔒 *CrimePredictAI aims to redefine crime analysis through AI, making cities safer and smarter.* 🏙️🤖
 
 ## 🔗 Quick Access
 
 Click here: [https://crimepredictai.netlify.app/](https://crimepredictai.netlify.app/)
 
- or Scan the QR code to visit the live Crime Pattern Analysis and Prediction site:
+ or Scan the QR code to visit the live CrimePredictAI site:
 
 <p align="center">
-  <a href="https://crimepredictai-dupli-ny19.bolt.host/">
-    <img src="QR_Code.png" alt="Crime Pattern Analysis and Prediction QR Code" width="499" />
+  <a href="https://crimepredictai.netlify.app/">
+    <img src="QR_Code.png" alt="CrimePredictAI QR Code" width="499" />
   </a>
 </p>
 

@@ -10,7 +10,6 @@ const Navbar = () => {
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/prediction', label: 'Live Demo', icon: Target },
     { path: '/dataset-upload', label: 'Upload Dataset', icon: Upload },
-    { path: '/google-sheets', label: 'Google Sheets DB', icon: Upload },
     { path: '/models', label: 'Model Performance', icon: Brain },
     { path: '/about', label: 'About', icon: BookOpen },
   ];
@@ -21,7 +20,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-3">
             <Shield className="h-8 w-8 text-blue-400" />
-            <span className="text-xl font-bold text-white">Crime Pattern Analysis and Prediction</span>
+            <span className="text-xl font-bold text-white">CrimePredictAI</span>
           </Link>
           
           <div className="hidden md:block">
