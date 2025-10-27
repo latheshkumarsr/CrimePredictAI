@@ -7,7 +7,7 @@ const About = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">About CrimePredictAI</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">About Crime Pattern Analysis and Prediction</h1>
           <p className="text-gray-600">
             Understanding our methodology, technology, and approach to crime prediction
           </p>
@@ -20,7 +20,7 @@ const About = () => {
             <h2 className="text-2xl font-bold text-gray-900">Project Overview</h2>
           </div>
           <p className="text-gray-700 mb-4">
-            CrimePredictAI represents a cutting-edge application of machine learning 
+            Crime Pattern Analysis and Prediction represents a cutting-edge application of machine learning 
             techniques to the critical challenge of crime prediction and prevention. 
             This project demonstrates how artificial intelligence can be leveraged to 
             analyze complex crime patterns and provide actionable insights for law 

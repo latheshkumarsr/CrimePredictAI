@@ -1,7 +1,7 @@
-# 🚨 CrimePredictAI: Comprehensive Project Analysis Report  
+# 🚨 Crime Pattern Analysis and Prediction: Comprehensive Project Analysis Report  
 
 ## 📌 Executive Summary  
-CrimePredictAI represents a cutting-edge application of **machine learning** technology for crime prediction and analysis.  
+Crime Pattern Analysis and Prediction represents a cutting-edge application of **machine learning** technology for crime prediction and analysis.  
 ⚡ This web-based platform demonstrates exceptional technical sophistication, achieving **88.6% accuracy** in crime prediction using advanced **Random Forest algorithms**.  
 The project successfully integrates **real-time data analysis**, **interactive visualizations**, and **user-friendly interfaces** to create a comprehensive crime analytics solution.  
 
@@ -163,7 +163,7 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 
 ## ✅ Conclusion  
 
-CrimePredictAI is a **landmark initiative** in applying **AI/ML to public safety**. It delivers:  
+Crime Pattern Analysis and Prediction is a **landmark initiative** in applying **AI/ML to public safety**. It delivers:  
 1. **🤖 Technical Excellence** – High-accuracy models  
 2. **🚨 Practical Utility** – Real-world police applications  
 3. **🎨 User-Centered Design** – Intuitive & interactive UI  
@@ -178,17 +178,17 @@ CrimePredictAI is a **landmark initiative** in applying **AI/ML to public safety
 
 ---
 
-🔒 *CrimePredictAI aims to redefine crime analysis through AI, making cities safer and smarter.* 🏙️🤖
+🔒 *Crime Pattern Analysis and Prediction aims to redefine crime analysis through AI, making cities safer and smarter.* 🏙️🤖
 
 ## 🔗 Quick Access
 
 Click here: [https://crimepredictai.netlify.app/](https://crimepredictai.netlify.app/)
 
- or Scan the QR code to visit the live CrimePredictAI site:
+ or Scan the QR code to visit the live Crime Pattern Analysis and Prediction site:
 
 <p align="center">
-  <a href="https://crimepredictai.netlify.app/">
-    <img src="QR_Code.png" alt="CrimePredictAI QR Code" width="499" />
+  <a href="https://crimepredictai-dupli-ny19.bolt.host/">
+    <img src="QR_Code.png" alt="Crime Pattern Analysis and Prediction QR Code" width="499" />
   </a>
 </p>
 
