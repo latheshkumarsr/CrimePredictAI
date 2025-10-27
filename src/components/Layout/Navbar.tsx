@@ -10,6 +10,7 @@ const Navbar = () => {
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/prediction', label: 'Live Demo', icon: Target },
     { path: '/dataset-upload', label: 'Upload Dataset', icon: Upload },
+    { path: '/google-sheets', label: 'Google Sheets DB', icon: Upload },
     { path: '/models', label: 'Model Performance', icon: Brain },
     { path: '/about', label: 'About', icon: BookOpen },
   ];

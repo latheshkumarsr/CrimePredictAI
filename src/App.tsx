@@ -11,6 +11,7 @@ import Prediction from './pages/Prediction';
 import Models from './pages/Models';
 import DatasetUpload from './pages/DatasetUpload';
 import About from './pages/About';
+import GoogleSheetsDemo from './pages/GoogleSheetsDemo';
 
 function App() {
   const [showAIModule, setShowAIModule] = React.useState(false);
@@ -27,6 +28,7 @@ function App() {
               <Route path="dataset-upload" element={<DatasetUpload />} />
               <Route path="models" element={<Models />} />
               <Route path="about" element={<About />} />
+              <Route path="google-sheets" element={<GoogleSheetsDemo />} />
             </Route>
           </Routes>
           

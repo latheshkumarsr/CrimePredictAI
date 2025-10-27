@@ -28,6 +28,11 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 - 🌀 **TypeScript** – Type-safe programming  
 - 🎨 **Tailwind CSS** – Responsive design utilities  
 
+### 📊 Database Integration  
+- 📋 **Google Sheets API** – Live database operations  
+- 🔄 **Real-time Sync** – Instant data updates  
+- 🔐 **Secure Authentication** – API key-based access  
+
 ### 📊 Visualization Components  
 - 📈 **Recharts** – Advanced charting  
 - 🗺️ **React-Leaflet** – Interactive maps  
@@ -38,8 +43,35 @@ Leveraging **AI & ML** to analyze crime patterns, predict criminal activity, and
 - 🔎 **Scikit-learn** – Model development  
 - 📑 **Pandas** – Data manipulation  
 
+### 🗄️ Database Operations  
+- 📝 **CRUD Operations** – Complete data management  
+- 📊 **Google Sheets** – Live spreadsheet database  
+- 🔄 **Real-time Updates** – Instant synchronization  
+- 📋 **Bulk Operations** – Efficient data handling  
+
 ### ☁️ Deployment Infrastructure  
 - 🌐 **Netlify** – Hosting & CI/CD pipelines  
+
+---
+
+## 🗄️ Google Sheets Database Integration  
+
+### 📋 **Database Setup**  
+- **Live Google Sheet**: [Crime Database](https://docs.google.com/spreadsheets/d/1bYwyyGFR-Dkfo7yE8t0ftw_xXblJosKEP3ud3k0IPAc/edit?usp=sharing)  
+- **Real-time Operations**: All CRUD operations reflect instantly  
+- **API Integration**: Google Sheets API v4 with secure authentication  
+
+### 🔧 **CRUD Operations**  
+- ✅ **Create**: Add new crime records  
+- 📖 **Read**: Fetch all data with filtering  
+- ✏️ **Update**: Modify existing records  
+- 🗑️ **Delete**: Remove records safely  
+
+### 📊 **Features**  
+- **Type Safety**: Full TypeScript support  
+- **Error Handling**: Comprehensive error management  
+- **Bulk Operations**: Batch data processing  
+- **Real-time Sync**: Instant updates across all clients  
 
 ---
 
