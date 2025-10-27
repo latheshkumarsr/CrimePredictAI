@@ -20,7 +20,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-3">
             <Shield className="h-8 w-8 text-blue-400" />
-            <span className="text-xl font-bold text-white">CrimePredictAI</span>
+            <span className="text-xl font-bold text-white">Crime Pattern Analysis and Prediction</span>
           </Link>
           
           <div className="hidden md:block">

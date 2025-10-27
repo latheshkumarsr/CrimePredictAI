@@ -18,7 +18,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center relative z-10">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              CrimePredictAI
+              Crime Pattern Analysis and Prediction
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100">
               Advanced Machine Learning for Crime Pattern Analysis & Prediction
