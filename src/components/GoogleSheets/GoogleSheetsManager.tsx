@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { googleSheetsService, CrimeRecord } from '../../services/googleSheetsService';
 import { googleSheetsExamples } from '../../utils/googleSheetsExamples';
-import { Database, Plus, Edit, Trash2, RefreshCw, Info, Upload, Download } from 'lucide-react';
+import { Database, Plus, CreditCard as Edit, Trash2, RefreshCw, Info, Upload, Download } from 'lucide-react';
 
 const GoogleSheetsManager: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
