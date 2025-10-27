@@ -3,7 +3,7 @@ import { GoogleAuth } from 'google-auth-library';
 // Google Sheets configuration
 const SPREADSHEET_ID = '1bYwyyGFR-Dkfo7yE8t0ftw_xXblJosKEP3ud3k0IPAc';
 const SHEET_NAME = 'Sheet1'; // Default sheet name, can be changed
-const API_KEY = process.env.VITE_GOOGLE_SHEETS_API_KEY || '';
+const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
 // Google Sheets API endpoints
 const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
