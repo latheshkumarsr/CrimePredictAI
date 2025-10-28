@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 import { CrimeData, CrimeTrend, LocationHotspot } from '../types';
 import { defaultCrimeData, generateCrimeTrends, generateLocationHotspots } from '../data/mockData';
 import { generateIndianCrimeData } from '../data/indianCrimeData';
+import { supabase } from '../lib/supabase';
 
 interface DatasetInfo {
   id: string;
@@ -80,33 +81,63 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Simulate upload processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const columns = ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district'];
+
+      const { data: datasetResult, error: datasetError } = await supabase
+        .from('datasets')
+        .insert({
+          name: file.name,
+          upload_date: new Date().toISOString(),
+          size: file.size,
+          rows: data.length,
+          columns
+        })
+        .select()
+        .single();
+
+      if (datasetError) throw datasetError;
+      if (!datasetResult) throw new Error('Failed to create dataset');
+
+      const crimeDataInserts = data.map(crime => ({
+        dataset_id: datasetResult.id,
+        crime_id: crime.id,
+        type: crime.type,
+        location_lat: crime.location.lat,
+        location_lng: crime.location.lng,
+        location_address: crime.location.address,
+        location_district: crime.location.district,
+        timestamp: crime.timestamp.toISOString(),
+        severity: crime.severity,
+        status: crime.status,
+        description: crime.description
+      }));
+
+      const batchSize = 1000;
+      for (let i = 0; i < crimeDataInserts.length; i += batchSize) {
+        const batch = crimeDataInserts.slice(i, i + batchSize);
+        const { error: crimeError } = await supabase
+          .from('crime_data')
+          .insert(batch);
+
+        if (crimeError) throw crimeError;
+      }
 
       const newDataset: DatasetInfo = {
-        id: `dataset-${Date.now()}`,
-        name: file.name,
-        uploadDate: new Date(),
-        size: file.size,
-        rows: data.length,
-        columns: ['date', 'time', 'location', 'latitude', 'longitude', 'crime_type', 'severity', 'district']
+        id: datasetResult.id,
+        name: datasetResult.name,
+        uploadDate: new Date(datasetResult.upload_date),
+        size: datasetResult.size,
+        rows: datasetResult.rows,
+        columns: datasetResult.columns
       };
 
-      // Generate analytics from the new data
       const { trends, hotspots } = generateAnalytics(data);
 
-      // Update state
       setAvailableDatasets(prev => [newDataset, ...prev]);
       setCurrentDataset(newDataset);
       setCrimeData(data);
       setCrimeTrends(trends);
       setLocationHotspots(hotspots);
-
-      // Store in localStorage for persistence
-      const storedDatasets = JSON.parse(localStorage.getItem('crimeDatasets') || '[]');
-      const updatedDatasets = [newDataset, ...storedDatasets];
-      localStorage.setItem('crimeDatasets', JSON.stringify(updatedDatasets));
-      localStorage.setItem(`crimeData-${newDataset.id}`, JSON.stringify(data));
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
@@ -120,7 +151,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Handle default dataset
       if (datasetId === 'default-dataset') {
         const { trends, hotspots } = generateAnalytics(defaultCrimeData);
         setCurrentDataset(defaultDataset);
@@ -130,7 +160,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         return;
       }
 
-      // Handle Indian dataset
       if (datasetId === 'indian-dataset') {
         const indianData = generateIndianCrimeData(5000);
         const { trends, hotspots } = generateAnalytics(indianData);
@@ -141,19 +170,46 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         return;
       }
 
-      // Find dataset
-      const dataset = availableDatasets.find(d => d.id === datasetId);
-      if (!dataset) {
-        throw new Error('Dataset not found');
-      }
+      const { data: datasetResult, error: datasetError } = await supabase
+        .from('datasets')
+        .select('*')
+        .eq('id', datasetId)
+        .maybeSingle();
 
-      // Load data from localStorage
-      const storedData = localStorage.getItem(`crimeData-${datasetId}`);
-      if (!storedData) {
-        throw new Error('Dataset data not found');
-      }
+      if (datasetError) throw datasetError;
+      if (!datasetResult) throw new Error('Dataset not found');
 
-      const data: CrimeData[] = JSON.parse(storedData);
+      const { data: crimeDataResult, error: crimeError } = await supabase
+        .from('crime_data')
+        .select('*')
+        .eq('dataset_id', datasetId);
+
+      if (crimeError) throw crimeError;
+
+      const data: CrimeData[] = (crimeDataResult || []).map(crime => ({
+        id: crime.crime_id,
+        type: crime.type,
+        location: {
+          lat: Number(crime.location_lat),
+          lng: Number(crime.location_lng),
+          address: crime.location_address,
+          district: crime.location_district
+        },
+        timestamp: new Date(crime.timestamp),
+        severity: crime.severity as 'Low' | 'Medium' | 'High' | 'Critical',
+        status: crime.status as 'Open' | 'Under Investigation' | 'Closed' | 'Cold Case',
+        description: crime.description
+      }));
+
+      const dataset: DatasetInfo = {
+        id: datasetResult.id,
+        name: datasetResult.name,
+        uploadDate: new Date(datasetResult.upload_date),
+        size: datasetResult.size,
+        rows: datasetResult.rows,
+        columns: datasetResult.columns
+      };
+
       const { trends, hotspots } = generateAnalytics(data);
 
       setCurrentDataset(dataset);
@@ -163,7 +219,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dataset');
-      // Fallback to default dataset
       const { trends, hotspots } = generateAnalytics(defaultCrimeData);
       setCurrentDataset(defaultDataset);
       setCrimeData(defaultCrimeData);
@@ -172,7 +227,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [availableDatasets, generateAnalytics]);
+  }, [generateAnalytics]);
 
   const refreshDashboard = useCallback(() => {
     if (currentDataset) {
@@ -183,18 +238,40 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   }, [currentDataset, selectDataset]);
 
-  // Load datasets from localStorage on mount
   React.useEffect(() => {
-    const storedDatasets = JSON.parse(localStorage.getItem('crimeDatasets') || '[]');
-    const allDatasets = [defaultDataset, ...storedDatasets];
-    setAvailableDatasets(allDatasets);
-    
-    // Always start with default dataset
-    const { trends, hotspots } = generateAnalytics(defaultCrimeData);
-    setCurrentDataset(defaultDataset);
-    setCrimeData(defaultCrimeData);
-    setCrimeTrends(trends);
-    setLocationHotspots(hotspots);
+    const loadDatasets = async () => {
+      try {
+        const { data: datasetsResult, error } = await supabase
+          .from('datasets')
+          .select('*')
+          .order('upload_date', { ascending: false });
+
+        if (error) throw error;
+
+        const loadedDatasets: DatasetInfo[] = (datasetsResult || []).map(ds => ({
+          id: ds.id,
+          name: ds.name,
+          uploadDate: new Date(ds.upload_date),
+          size: ds.size,
+          rows: ds.rows,
+          columns: ds.columns
+        }));
+
+        const allDatasets = [defaultDataset, indianDataset, ...loadedDatasets];
+        setAvailableDatasets(allDatasets);
+      } catch (err) {
+        console.error('Failed to load datasets:', err);
+        setAvailableDatasets([defaultDataset, indianDataset]);
+      }
+
+      const { trends, hotspots } = generateAnalytics(defaultCrimeData);
+      setCurrentDataset(defaultDataset);
+      setCrimeData(defaultCrimeData);
+      setCrimeTrends(trends);
+      setLocationHotspots(hotspots);
+    };
+
+    loadDatasets();
   }, [generateAnalytics]);
 
   const value: DataContextType = {
