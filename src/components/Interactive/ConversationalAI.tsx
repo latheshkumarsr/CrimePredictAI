@@ -11,7 +11,7 @@ interface Message {
 
 interface ConversationalAIProps {
   userLocation: { lat: number; lng: number } | null;
-  userPreferences: any;
+  userPreferences: Record<string, string | number | boolean | { level?: string }>;
 }
 
 const ConversationalAI: React.FC<ConversationalAIProps> = ({ 
@@ -30,7 +30,7 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const languages = [
@@ -130,14 +130,15 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({
 
   const startVoiceInput = () => {
     if ('webkitSpeechRecognition' in window) {
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const SpeechRecognition = (window as { webkitSpeechRecognition: new () => SpeechRecognition }).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = selectedLanguage;
 
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setInputText(transcript);
       };

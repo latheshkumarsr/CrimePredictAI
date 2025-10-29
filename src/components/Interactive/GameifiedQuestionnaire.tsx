@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Shield, MapPin, Clock, Users, Zap, Award, ArrowRight, RotateCcw } from 'lucide-react';
+import { Shield, Zap, Award, ArrowRight, RotateCcw } from 'lucide-react';
 
 interface GameifiedQuestionnaireProps {
   userLocation: { lat: number; lng: number } | null;
-  userPreferences: any;
+  userPreferences: Record<string, string | number | boolean>;
 }
 
 interface Question {
