@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, MessageCircle, Zap, Shield, Brain, Globe, Play, Pause } from 'lucide-react';
+import { MapPin, MessageCircle, Shield, Brain } from 'lucide-react';
 import GeolocationPersonalizer from './GeolocationPersonalizer';
 import GameifiedQuestionnaire from './GameifiedQuestionnaire';
 import ConversationalAI from './ConversationalAI';
-import MicroInteractions from './MicroInteractions';
 import DynamicVisuals from './DynamicVisuals';
 
 interface AIModuleProps {
@@ -12,49 +11,63 @@ interface AIModuleProps {
 }
 
 const AIModule: React.FC<AIModuleProps> = ({ isVisible, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'personalize' | 'adventure' | 'chat' | 'interact'>('personalize');
+  const [activeTab, setActiveTab] = useState<'personalize' | 'adventure' | 'chat'>('personalize');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userPreferences, setUserPreferences] = useState<any>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const moduleRef = useRef<HTMLDivElement>(null);
+  const watchIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isVisible) {
       setIsAnimating(true);
-      // Get user location for personalization
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            });
-          },
-          (error) => {
-            console.log('Geolocation not available:', error);
-            // Fallback to NYC coordinates
-            setUserLocation({ lat: 40.7128, lng: -74.0060 });
-          }
-        );
-      }
+      startRealtimeTracking();
     }
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
   }, [isVisible]);
+
+  const startRealtimeTracking = () => {
+    if (!navigator.geolocation) {
+      setUserLocation({ lat: 40.7128, lng: -74.0060 });
+      return;
+    }
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      },
+      (error) => {
+        console.log('Geolocation error:', error);
+        setUserLocation({ lat: 40.7128, lng: -74.0060 });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
 
   if (!isVisible) return null;
 
   const tabs = [
     { id: 'personalize', label: 'Smart Adapt', icon: Brain, color: 'blue' },
     { id: 'adventure', label: 'Safety Quest', icon: Shield, color: 'green' },
-    { id: 'chat', label: 'AI Assistant', icon: MessageCircle, color: 'purple' },
-    { id: 'interact', label: 'Live Mode', icon: Zap, color: 'orange' }
+    { id: 'chat', label: 'AI Assistant', icon: MessageCircle, color: 'purple' }
   ];
 
   const getTabColor = (color: string, isActive: boolean) => {
     const colors = {
       blue: isActive ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200',
       green: isActive ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200',
-      purple: isActive ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200',
-      orange: isActive ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+      purple: isActive ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
     };
     return colors[color as keyof typeof colors];
   };
@@ -119,14 +132,10 @@ const AIModule: React.FC<AIModuleProps> = ({ isVisible, onClose }) => {
           )}
           
           {activeTab === 'chat' && (
-            <ConversationalAI 
+            <ConversationalAI
               userLocation={userLocation}
               userPreferences={userPreferences}
             />
-          )}
-          
-          {activeTab === 'interact' && (
-            <MicroInteractions />
           )}
         </div>
       </div>

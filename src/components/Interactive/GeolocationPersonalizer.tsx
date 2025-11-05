@@ -6,17 +6,19 @@ interface GeolocationPersonalizerProps {
   onPreferencesUpdate: (preferences: any) => void;
 }
 
-const GeolocationPersonalizer: React.FC<GeolocationPersonalizerProps> = ({ 
-  userLocation, 
-  onPreferencesUpdate 
+const GeolocationPersonalizer: React.FC<GeolocationPersonalizerProps> = ({
+  userLocation,
+  onPreferencesUpdate
 }) => {
   const [localInsights, setLocalInsights] = useState<any>(null);
   const [personalizedContent, setPersonalizedContent] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [locationUpdates, setLocationUpdates] = useState<number>(0);
 
   useEffect(() => {
     if (userLocation) {
       analyzeLocation();
+      setLocationUpdates(prev => prev + 1);
     }
   }, [userLocation]);
 
@@ -120,15 +122,21 @@ const GeolocationPersonalizer: React.FC<GeolocationPersonalizerProps> = ({
   return (
     <div className="space-y-6">
       {/* Personalized Welcome */}
-      <div 
+      <div
         className="p-6 rounded-xl text-white relative overflow-hidden"
         style={{ backgroundColor: personalizedContent?.primaryColor || '#3b82f6' }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black opacity-20"></div>
         <div className="relative z-10">
-          <h3 className="text-2xl font-bold mb-2">
-            {personalizedContent?.welcomeMessage}
-          </h3>
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-2xl font-bold">
+              {personalizedContent?.welcomeMessage}
+            </h3>
+            <div className="flex items-center space-x-2 bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>Live Tracking</span>
+            </div>
+          </div>
           <div className="flex items-center space-x-4 text-sm opacity-90">
             <span className="flex items-center">
               <MapPin className="h-4 w-4 mr-1" />
@@ -137,6 +145,9 @@ const GeolocationPersonalizer: React.FC<GeolocationPersonalizerProps> = ({
             <span className="flex items-center">
               <Shield className="h-4 w-4 mr-1" />
               Risk Level: {localInsights?.riskLevel.level}
+            </span>
+            <span className="text-xs opacity-75">
+              Updates: {locationUpdates}
             </span>
           </div>
         </div>
